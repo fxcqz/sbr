@@ -1,9 +1,13 @@
 {{ static }}
 @import url(http://fonts.googleapis.com/css?family=Merriweather+Sans);
 *:focus { outline: none; }
+html { height: 100%; }
 body {
     background-color: #262324;
-    background: url(../bg.svg) no-repeat top left;
+    background: url(../bg.svg) no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
     font-family: "Merriweather Sans", sans-serif;
     font-size:12px;
 }
