@@ -4,6 +4,7 @@ import json
 import os
 from os import listdir
 import re
+import sys
 
 
 GLOBALSFILE    = "globals.json"
@@ -158,6 +159,10 @@ class OutputFile(object):
 
 
 if __name__ == '__main__':
+    if any(opt in sys.argv for opt in ['-n', '--new']):
+        print("Parsing args")
+        exit()
+
     print("loading globals")
     global_vals = load_globals()
 
