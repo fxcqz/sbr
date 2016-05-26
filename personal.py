@@ -194,7 +194,7 @@ if __name__ == '__main__':
 
     print("loading and sorting posts")
     posts = [Post(file) for file in listdir(POSTSDIR)]
-    posts = sorted(posts, key=sort_posts_cmp)
+    posts = sorted(posts, key=sort_posts_cmp, reverse=True)
 
     for dirpath, dirs, files in os.walk(SITEDIR):
         for file in files:
