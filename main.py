@@ -264,6 +264,8 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(prog="./personal.py", description="Generate a website")
     parser.add_argument('--new', '-n', dest="title", help='Create a new post with a given title')
+    parser.add_argument('--no-copy', help='Skip files which are copy only (e.g. js, svg, etc.)',
+                        action='store_true')
     args = parser.parse_args()
 
     if args.title is not None:
@@ -280,7 +282,7 @@ if __name__ == '__main__':
     for dirpath, dirs, files in os.walk(SITEDIR):
         for file in files:
             filename = os.path.join(dirpath, file)
-            if filename.endswith(COPY_ONLY):
+            if filename.endswith(COPY_ONLY) and not args.no_copy:
                 # copy files across
                 out_file = OUTPUTDIR + filename[filename.find('/') + 1:]
                 out_dir = os.path.dirname(out_file)
