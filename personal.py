@@ -162,8 +162,9 @@ class OutputFile(object):
 def new_post(title, glob):
     filename = POSTSDIR + title.replace(' ', '_') + '.post'
     if os.path.isfile(filename):
-        print("Error: duplicate titles not yet supported")
-        return
+        title_filename = title.replace(' ', '_')
+        num_duplicates = sum(1 for f in listdir(POSTSDIR) if f.startswith(title_filename))
+        filename = POSTSDIR + title_filename + '_{}'.format(num_duplicates + 1) + '.post'
 
     with open(filename, 'w+') as handle:
         handle.write(('.meta\n'
