@@ -166,13 +166,19 @@ class OutputFile(object):
         self.posts = posts
         self.global_vals = global_vals
 
+    def sub_glob(self, match):
+        value = self.global_vals[match.group(1)][match.group(2)]
+        if match.group(2) == "sidebar":
+            return '\n'.join('<p><a href="{}">{}</a></p>'.format(el['link'], el['text']) for el in value)
+        return value
+
     def write(self):
         with open(self.source_file, 'r') as handle:
             page_data = handle.read()
         page_data = re.sub(
             r'{{\s*globals\.(.*)\.(.*?)\s*}}',
-            lambda m: self.global_vals[m.group(1)][m.group(2)],
-            page_data
+            self.sub_glob,
+            page_data,
         )
         if "{{ static }}" in page_data:
             page_data = re.sub(r'{{\s*static\s*}}\n?', '', page_data)

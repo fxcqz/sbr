@@ -1,7 +1,11 @@
 {
  "main": {
   "title": "My site",
-  "author": "the author"
+  "author": "the author",
+  "sidebar": [
+   {"text": "Home", "link": "index.html"},
+   {"text": "About", "link": "about.html"}
+  ]
  },
  "fs": {
   "outputdir": "output/",
