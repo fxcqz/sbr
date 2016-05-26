@@ -1,10 +1,11 @@
+#!/usr/bin/env python
+import argparse
 from datetime import datetime
 from docutils.core import publish_parts
 import json
 import os
 from os import listdir
 import re
-import sys
 
 
 GLOBALSFILE    = "globals.json"
@@ -158,12 +159,37 @@ class OutputFile(object):
             handle.write(page_data)
 
 
+def new_post(title, glob):
+    filename = POSTSDIR + title.replace(' ', '_') + '.post'
+    if os.path.isfile(filename):
+        print("Error: duplicate titles not yet supported")
+        return
+
+    with open(filename, 'w+') as handle:
+        handle.write(('.meta\n'
+                      'title = "{}";\n'
+                      'author = "{}";\n'
+                      'time = "{}";\n\n'
+                      '.content\n').format(
+                        title,
+                        glob['main']['author'],
+                        datetime.now().strftime("%Y-%m-%d %H:%M"),
+                        ))
+
+    print("Created new post file: {}".format(filename))
+
+
 if __name__ == '__main__':
     print("loading globals")
     global_vals = load_globals()
 
-    if any(opt in sys.argv for opt in ['-n', '--new']):
-        print("Parsing args")
+    parser = argparse.ArgumentParser(prog="./personal.py", description="Generate a website")
+    parser.add_argument('--new', '-n', dest="title", help='Create a new post with a given title')
+    args = parser.parse_args()
+
+    if 'title' in args:
+        # create a new post
+        new_post(args.title, global_vals)
         exit()
 
     print("loading and sorting posts")
