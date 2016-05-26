@@ -7,11 +7,13 @@ import json
 import os
 from os import listdir
 import re
+import shutil
 
 
 GLOBALSFILE    = "globals.json"
 PAGE_TYPES     = ('html', 'css')
 EXCLUDED_FILES = ("base.html",)
+COPY_ONLY      = ('js', 'svg')
 
 def load_globals():
     with open(GLOBALSFILE, 'r') as handle:
@@ -246,7 +248,17 @@ if __name__ == '__main__':
     for dirpath, dirs, files in os.walk(SITEDIR):
         for file in files:
             filename = os.path.join(dirpath, file)
-            if not filename.endswith(PAGE_TYPES) or filename.endswith(EXCLUDED_FILES):
+            if filename.endswith(COPY_ONLY):
+                # copy files across
+                out_file = OUTPUTDIR + filename[filename.find('/') + 1:]
+                out_dir = os.path.dirname(out_file)
+                if not os.path.exists(out_dir):
+                    print("creating dir: {}".format(out_dir))
+                    os.makedirs(out_dir)
+                print("copying file: {} to {}".format(filename, out_file))
+                shutil.copyfile(filename, out_file)
+                continue
+            elif not filename.endswith(PAGE_TYPES) or filename.endswith(EXCLUDED_FILES):
                 continue
             page = OutputFile(filename, posts, global_vals)
             page.write()
