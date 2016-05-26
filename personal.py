@@ -177,6 +177,13 @@ def new_post(title, glob):
     print("Created new post file: {}".format(filename))
 
 
+def make_missing_dirs(*dirs):
+    for directory in dirs:
+        if not os.path.exists(directory):
+            print("Missing directory {}... Creating it.".format(directory))
+            os.makedirs(directory)
+
+
 if __name__ == '__main__':
     print("loading globals")
     global_vals = load_globals()
@@ -184,6 +191,8 @@ if __name__ == '__main__':
     OUTPUTDIR = global_vals['fs'].get('outputdir', 'output/')
     POSTSDIR = global_vals['fs'].get('postsdir', '_posts/')
     SITEDIR = global_vals['fs'].get('sitedir', '_site/')
+
+    make_missing_dirs(OUTPUTDIR, POSTSDIR, SITEDIR)
 
     parser = argparse.ArgumentParser(prog="./personal.py", description="Generate a website")
     parser.add_argument('--new', '-n', dest="title", help='Create a new post with a given title')

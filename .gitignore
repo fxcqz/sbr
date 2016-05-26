@@ -2,3 +2,4 @@ env/
 _posts/
 output/
 globals.json
+*.swp
