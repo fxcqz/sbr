@@ -2,5 +2,10 @@
  "main": {
   "title": "My site",
   "author": "the author"
+ },
+ "fs": {
+  "outputdir": "output/",
+  "postsdir": "_posts/",
+  "sitedir": "_site/"
  }
 }

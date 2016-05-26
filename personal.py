@@ -9,9 +9,6 @@ import re
 
 
 GLOBALSFILE    = "globals.json"
-OUTPUTDIR      = "output/"
-POSTSDIR       = "_posts/"
-SITEDIR        = "_site/"
 PAGE_TYPES     = ('html', 'css')
 EXCLUDED_FILES = ("base.html",)
 
@@ -183,6 +180,10 @@ def new_post(title, glob):
 if __name__ == '__main__':
     print("loading globals")
     global_vals = load_globals()
+
+    OUTPUTDIR = global_vals['fs'].get('outputdir', 'output/')
+    POSTSDIR = global_vals['fs'].get('postsdir', '_posts/')
+    SITEDIR = global_vals['fs'].get('sitedir', '_site/')
 
     parser = argparse.ArgumentParser(prog="./personal.py", description="Generate a website")
     parser.add_argument('--new', '-n', dest="title", help='Create a new post with a given title')
