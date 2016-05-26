@@ -1,19 +1,43 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>{{ globals.main.title }}</title>
-    <link rel="stylesheet" type="text/css" href="css/main.css" />
-  </head>
-  <body>
-    <header>
-      <h1>{{ globals.main.title }}</h1>
-    </header>
-    <nav>
-      <p><a href="index.html">Home</a> &bull; <a href="about.html">About</a></p>
-    </nav>
-    <content>
-      {{ posts }}
-    </content>
-  </body>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<title>{{ globals.main.title }}</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+<link href="css/extra.css" rel="stylesheet" type="text/css">
+<!--[if lt IE 9]>
+<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-sm-4 col-sm-offset-3" id="box-title">
+            <div class="boxlinks">
+              <header>
+                <h3>{{ globals.main.title }}</h3>
+              </header>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-8" id="box-content">
+            <div class="boxlinks">
+              <h4>Content</h4>
+              {{ posts }}
+            </div>
+        </div>
+        <div class="col-sm-2 col-sm-offset-1" id="box-nav">
+            <div class="boxlinks">
+              <h4>Links</h4>
+              <p><a href="index.html">Home</a></p>
+              <p><a href="about.html">About</a></p>
+            </div>
+        </div>
+    </div>
+    <script src="js/jquery.js"></script>
+    <script src="js/jsplumb.js"></script>
+    <script src="js/app.js"></script>
+</div>
+</body>
 </html>

@@ -1,0 +1,43 @@
+@import url(http://fonts.googleapis.com/css?family=Merriweather+Sans);
+@import url(https://fonts.googleapis.com/css?family=Lora);
+*:focus { outline: none; }
+body {
+    background-color: #262324;
+    background: url(../bg.svg) no-repeat top left;
+    font-family: "Merriweather Sans", sans-serif;
+    font-size:12px;
+}
+h1, .boxlinks { color:#f2e7c4; }
+#dva { margin-top: 70px; }
+#tri { margin-top: 30px; }
+.col-sm-2, .col-sm-4, .col-sm-8 {
+	margin-top: 60px; 
+	padding: 15px;
+	background-color: #d95829;
+	border:1px #f29441 solid;
+}
+header {
+    text-align: center;
+}
+._jsPlumb_connector { z-index: -1; }
+.inner { 
+	border: none !important;
+	margin-top: 0px !important;
+	text-align: justify;
+}
+a:link, a:visited {
+    color:#f2e7c4;
+	text-decoration:none;
+}
+a:hover {
+    color:#f2e7c4;
+	text-decoration:underline;
+}
+.boxlinks a:link, .boxlinks a:visited {
+    color:#f2e7c4;
+	text-decoration:underline;
+}
+.boxlinks a:hover {
+    color:#f2e7c4;
+	text-decoration:none;
+}
