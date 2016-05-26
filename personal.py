@@ -117,13 +117,14 @@ class Post(object):
             header = '<a href="{}">{}</a>'.format(self.html_file, self.meta['title'])
         return ('<div class="post">\n'
                 '  <div class="post-title">\n'
-                '    <div class="righty">Posted by {} on {}</div>\n'
-                '   <h2>{}</h2>\n'
+                '    <span class="pull-right">Posted by {} on {}</span>\n'
+                '    <h4>{}</h4>\n'
                 '  </div>\n'
                 '  <div class="post-content">\n'
-                '   {}\n'
+                '    {}\n'
                 '  </div>\n'
-                '</div>\n').format(author, self.meta['time'], header, self.content)
+                '</div>\n'
+                '<hr />\n').format(author, self.meta['time'], header, self.content)
 
     @staticmethod
     def create_static_pages(posts, global_vals):
@@ -175,6 +176,7 @@ class OutputFile(object):
         )
         if "{{ static }}" in page_data:
             page_data = re.sub(r'{{\s*static\s*}}\n?', '', page_data)
+            print("skipping non globals processing: file is static")
         elif '{{ posts }}' in page_data:
             # indexing
             page_data = re.sub(r'{{\s*posts\s*}}', '\n'.join(post.format_output(

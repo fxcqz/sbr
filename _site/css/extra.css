@@ -1,5 +1,5 @@
+{{ static }}
 @import url(http://fonts.googleapis.com/css?family=Merriweather+Sans);
-@import url(https://fonts.googleapis.com/css?family=Lora);
 *:focus { outline: none; }
 body {
     background-color: #262324;
@@ -15,6 +15,14 @@ h1, .boxlinks { color:#f2e7c4; }
 	padding: 15px;
 	background-color: #d95829;
 	border:1px #f29441 solid;
+}
+hr {
+	display: block;
+    height: 1px;
+    border: 0;
+    border-top: 1px #f29441 solid;
+    margin: 1em 0;
+    padding: 0;
 }
 header {
     text-align: center;
@@ -40,4 +48,12 @@ a:hover {
 .boxlinks a:hover {
     color:#f2e7c4;
 	text-decoration:none;
+}
+.post {
+    margin-bottom: 30px;
+}
+footer {
+    filter: alpha(opacity=40);
+    opacity: 0.4;
+    text-align: center;
 }
