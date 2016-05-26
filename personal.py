@@ -187,7 +187,7 @@ if __name__ == '__main__':
     parser.add_argument('--new', '-n', dest="title", help='Create a new post with a given title')
     args = parser.parse_args()
 
-    if 'title' in args:
+    if args.title is not None:
         # create a new post
         new_post(args.title, global_vals)
         exit()
