@@ -2,6 +2,7 @@
 import argparse
 from datetime import datetime
 from docutils.core import publish_parts
+from functools import partial
 import json
 import os
 from os import listdir
@@ -92,6 +93,7 @@ class Post(object):
         self.source_file = source_file
         self.meta = {}
         self.content = None
+        self.html_file = ""
 
         self.parse_source()
 
@@ -106,7 +108,11 @@ class Post(object):
         self.meta = meta_parser.parse()
         self.content = publish_parts(content.strip(), writer_name="html")['html_body']
 
-    def format_output(self, author="anonymous"):
+    def format_output(self, author="anonymous", no_header_link=False):
+        if no_header_link or not self.html_file:
+            header = self.meta['title']
+        else:
+            header = '<a href="{}">{}</a>'.format(self.html_file, self.meta['title'])
         return ('<div class="post">\n'
                 '  <div class="post-title">\n'
                 '    <div class="righty">Posted by {} on {}</div>\n'
@@ -115,8 +121,36 @@ class Post(object):
                 '  <div class="post-content">\n'
                 '   {}\n'
                 '  </div>\n'
-                '</div>\n').format(author, self.meta['time'],
-                                   self.meta['title'], self.content)
+                '</div>\n').format(author, self.meta['time'], header, self.content)
+
+    @staticmethod
+    def create_static_pages(posts, global_vals):
+        base_filename = global_vals['processing'].get('post_base', '_site/base.html')
+        with open(base_filename, 'r') as handle:
+            page_data = handle.read()
+        page_data = re.sub(
+            r'{{\s*globals\.(.*)\.(.*?)\s*}}',
+            lambda m: global_vals[m.group(1)][m.group(2)],
+            page_data
+        )
+
+        def _sub_post_data(post, match):
+            value = match.group(1)
+            if value.startswith('meta'):
+                key = value.split('.')[-1]
+                return post.meta.get(key)
+            else:
+                return post.__dict__.get(value)
+
+        for post in posts:
+            new_page = page_data
+            new_page = re.sub( r'{{\s*post\.(.*?)\s*}}', partial(_sub_post_data, post), new_page)
+
+            output_file = global_vals['fs']['outputdir'] + post.source_file[:-5] + '.html'
+            with open(output_file, 'w+') as handle:
+                print("writing page for: {}".format(output_file))
+                handle.write(new_page)
+                post.html_file = output_file.split('/')[-1]
 
     def __repr__(self):
         return "Post {}".format(self.source_file)
@@ -129,13 +163,14 @@ class OutputFile(object):
         self.posts = posts
         self.global_vals = global_vals
 
-    def sub_glob(self, match):
-        return self.global_vals[match.group(1)][match.group(2)]
-
     def write(self):
         with open(self.source_file, 'r') as handle:
             page_data = handle.read()
-        page_data = re.sub(r'{{\s*globals\.(.*)\.(.*?)\s*}}', self.sub_glob, page_data)
+        page_data = re.sub(
+            r'{{\s*globals\.(.*)\.(.*?)\s*}}',
+            lambda m: self.global_vals[m.group(1)][m.group(2)],
+            page_data
+        )
         if "{{ static }}" in page_data:
             page_data = re.sub(r'{{\s*static\s*}}\n?', '', page_data)
         elif '{{ posts }}' in page_data:
@@ -144,7 +179,6 @@ class OutputFile(object):
                             author=self.global_vals['main']['author']
                         ) for post in self.posts), page_data)
         else:
-            # post page
             pass
         out_file = OUTPUTDIR + self.source_file[self.source_file.find('/') + 1:]
         out_dir = os.path.dirname(out_file)
@@ -207,10 +241,12 @@ if __name__ == '__main__':
     posts = [Post(file) for file in listdir(POSTSDIR)]
     posts = sorted(posts, key=sort_posts_cmp, reverse=True)
 
+    Post.create_static_pages(posts, global_vals)
+
     for dirpath, dirs, files in os.walk(SITEDIR):
         for file in files:
             filename = os.path.join(dirpath, file)
-            if not filename.endswith(PAGE_TYPES) or filename in EXCLUDED_FILES:
+            if not filename.endswith(PAGE_TYPES) or filename.endswith(EXCLUDED_FILES):
                 continue
             page = OutputFile(filename, posts, global_vals)
             page.write()

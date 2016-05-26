@@ -7,5 +7,8 @@
   "outputdir": "output/",
   "postsdir": "_posts/",
   "sitedir": "_site/"
+ },
+ "processing": {
+  "post_base": "_site/base.html"
  }
 }
