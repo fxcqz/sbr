@@ -1,18 +1,29 @@
 from datetime import datetime
+from docutils.core import publish_parts
 import json
+import os
 from os import listdir
 import re
 
 
-GLOBALSFILE = "globals.json"
-OUTPUTDIR   = "output/"
-POSTSDIR    = "_posts/"
-SITEDIR     = "_site/"
+GLOBALSFILE    = "globals.json"
+OUTPUTDIR      = "output/"
+POSTSDIR       = "_posts/"
+SITEDIR        = "_site/"
+PAGE_TYPES     = ('html', 'css')
+EXCLUDED_FILES = ("base.html",)
 
 def load_globals():
     with open(GLOBALSFILE, 'r') as handle:
         glob = handle.read()
     return json.loads(glob)
+
+
+def sort_posts_cmp(post):
+    try:
+        return datetime.strptime(post.meta['time'], "%Y-%m-%d %H:%M")
+    except KeyError:
+        return 1
 
 
 class MetaParser(object):
@@ -94,7 +105,19 @@ class Post(object):
 
         meta_parser = MetaParser(meta)
         self.meta = meta_parser.parse()
-        self.content = content.strip()
+        self.content = publish_parts(content.strip(), writer_name="html")['html_body']
+
+    def format_output(self):
+        return ('<div class="post">\n'
+                '  <div class="post-title">\n'
+                '    <div class="righty">Posted by {} on {}</div>\n'
+                '   <h2>{}</h2>\n'
+                '  </div>\n'
+                '  <div class="post-content">\n'
+                '   {}\n'
+                '  </div>\n'
+                '</div>\n').format(self.meta['author'], self.meta['time'],
+                                   self.meta['title'], self.content)
 
     def __repr__(self):
         return "Post {}".format(self.source_file)
@@ -102,24 +125,52 @@ class Post(object):
 
 class OutputFile(object):
 
-    def __init__(self, source_file, global_vals):
+    def __init__(self, source_file, posts, global_vals):
         self.source_file = source_file
+        self.posts = posts
         self.global_vals = global_vals
 
     def sub_glob(self, match):
         return self.global_vals[match.group(1)][match.group(2)]
 
     def write(self):
-        with open(SITEDIR + self.source_file, 'r') as handle:
+        with open(self.source_file, 'r') as handle:
             page_data = handle.read()
-        page_data = re.sub(r'{{ globals\.(.*)\.(.*) }}', self.sub_glob, page_data)
-        print(page_data)
+        page_data = re.sub(r'{{\s*globals\.(.*)\.(.*?)\s*}}', self.sub_glob, page_data)
+        if "{{ static }}" in page_data:
+            page_data = re.sub(r'{{\s*static\s*}}\n?', '', page_data)
+        elif '{{ posts }}' in page_data:
+            # indexing
+            page_data = re.sub(r'{{\s*posts\s*}}',
+                               '\n'.join(post.format_output() for post in self.posts),
+                               page_data)
+        else:
+            # post page
+            pass
+        out_file = OUTPUTDIR + self.source_file[self.source_file.find('/') + 1:]
+        out_dir = os.path.dirname(out_file)
+        if not os.path.exists(out_dir):
+            print("creating dir: {}".format(out_dir))
+            os.makedirs(out_dir)
+        with open(out_file, 'w+') as handle:
+            print("writing file: {}".format(out_file))
+            handle.write(page_data)
 
 
 if __name__ == '__main__':
+    print("loading globals")
     global_vals = load_globals()
+
+    print("loading and sorting posts")
     posts = [Post(file) for file in listdir(POSTSDIR)]
-    posts = sorted(posts, key=lambda p: datetime.strptime(p.meta['time'], "%Y-%m-%d %H:%M"))
-    pages = [OutputFile(file, global_vals) for file in listdir(SITEDIR)]
-    for page in pages:
-        page.write()
+    posts = sorted(posts, key=sort_posts_cmp)
+
+    for dirpath, dirs, files in os.walk(SITEDIR):
+        for file in files:
+            filename = os.path.join(dirpath, file)
+            if not filename.endswith(PAGE_TYPES) or filename in EXCLUDED_FILES:
+                continue
+            page = OutputFile(filename, posts, global_vals)
+            page.write()
+
+    print("done")
