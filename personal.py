@@ -108,7 +108,7 @@ class Post(object):
         self.meta = meta_parser.parse()
         self.content = publish_parts(content.strip(), writer_name="html")['html_body']
 
-    def format_output(self):
+    def format_output(self, author="anonymous"):
         return ('<div class="post">\n'
                 '  <div class="post-title">\n'
                 '    <div class="righty">Posted by {} on {}</div>\n'
@@ -117,7 +117,7 @@ class Post(object):
                 '  <div class="post-content">\n'
                 '   {}\n'
                 '  </div>\n'
-                '</div>\n').format(self.meta['author'], self.meta['time'],
+                '</div>\n').format(author, self.meta['time'],
                                    self.meta['title'], self.content)
 
     def __repr__(self):
@@ -142,9 +142,9 @@ class OutputFile(object):
             page_data = re.sub(r'{{\s*static\s*}}\n?', '', page_data)
         elif '{{ posts }}' in page_data:
             # indexing
-            page_data = re.sub(r'{{\s*posts\s*}}',
-                               '\n'.join(post.format_output() for post in self.posts),
-                               page_data)
+            page_data = re.sub(r'{{\s*posts\s*}}', '\n'.join(post.format_output(
+                            author=self.global_vals['main']['author']
+                        ) for post in self.posts), page_data)
         else:
             # post page
             pass
@@ -159,12 +159,12 @@ class OutputFile(object):
 
 
 if __name__ == '__main__':
+    print("loading globals")
+    global_vals = load_globals()
+
     if any(opt in sys.argv for opt in ['-n', '--new']):
         print("Parsing args")
         exit()
-
-    print("loading globals")
-    global_vals = load_globals()
 
     print("loading and sorting posts")
     posts = [Post(file) for file in listdir(POSTSDIR)]
