@@ -89,6 +89,13 @@ class MetaParser(object):
         return data
 
 
+def sub_glob(global_vals, match):
+    value = global_vals[match.group(1)][match.group(2)]
+    if match.group(2) == "sidebar":
+        return '\n'.join('<p><a href="{}">{}</a></p>'.format(el['link'], el['text']) for el in value)
+    return value
+
+
 class Post(object):
 
     def __init__(self, source_file):
@@ -131,9 +138,10 @@ class Post(object):
         base_filename = global_vals['processing'].get('post_base', '_site/base.html')
         with open(base_filename, 'r') as handle:
             page_data = handle.read()
+
         page_data = re.sub(
             r'{{\s*globals\.(.*)\.(.*?)\s*}}',
-            lambda m: global_vals[m.group(1)][m.group(2)],
+            partial(sub_glob, global_vals),
             page_data
         )
 
@@ -177,7 +185,7 @@ class OutputFile(object):
             page_data = handle.read()
         page_data = re.sub(
             r'{{\s*globals\.(.*)\.(.*?)\s*}}',
-            self.sub_glob,
+            partial(sub_glob, self.global_vals),
             page_data,
         )
         if "{{ static }}" in page_data:
